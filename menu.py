@@ -123,7 +123,12 @@ class FNAFMenu:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Nightmera")
-        
+        pygame.mixer.init()
+        pygame.time.wait(2000)
+        pygame.mixer.music.load('menu theme.mp3')  # Add your menu theme music file
+        pygame.mixer.music.play(-1)  # -1 means loop indefinitely
+
+
         # Configuration dictionaries
         self.global_power_easy = {
             "idle_power": 0.00281,
@@ -171,7 +176,7 @@ class FNAFMenu:
         # Load and resize background image
         # Add these to your __init__ method
         self.current_page = 0
-        self.total_pages = 5  # Number of pages you want
+        self.total_pages = 6  
         self.controls_panel = None
         self.custom_night_frame = None
 
@@ -212,8 +217,60 @@ class FNAFMenu:
                 fg='white',
                 bg='black').pack()
 
+        # Configure the style
+        style = ttk.Style()
+        style.theme_use('clam')
+
+        # Configure dropdown button style
+        style.configure('Night.TMenubutton',
+            background='#2b2b2b',
+            foreground='white',
+            font=('Arial', 11),
+            padding=8,
+            relief='flat',
+            borderwidth=0
+        )
+
+        # Add hover effect for the button
+        style.map('Night.TMenubutton',
+            background=[('active', '#3b3b3b'), ('pressed', '#2b2b2b')],
+            foreground=[('active', 'white'), ('pressed', 'white')]
+        )
+
+        # Create the dropdown
         nights = ["Night 1", "Night 2", "Night 3", "Night 4"]
-        night_menu = ttk.OptionMenu(night_frame, self.selected_night, "Night 1", *nights)
+        night_menu = ttk.OptionMenu(
+            night_frame, 
+            self.selected_night, 
+            "Night 1", 
+            *nights,
+            style='Night.TMenubutton'
+        )
+
+        # Style the dropdown menu itself (the list that appears)
+        self.root.option_add('*TMenubutton*Menu*Background', '#2b2b2b')  # Menu background
+        self.root.option_add('*TMenubutton*Menu*Foreground', 'white')    # Menu text color
+        self.root.option_add('*TMenubutton*Menu*Font', ('Arial', 11))    # Menu font
+        self.root.option_add('*TMenubutton*Menu*Relief', 'flat')         # Remove border
+        self.root.option_add('*TMenubutton*Menu*BorderWidth', 0)         # Remove border width
+        self.root.option_add('*TMenubutton*Menu*activeBackground', '#3b3b3b')  # Hover background
+        self.root.option_add('*TMenubutton*Menu*activeForeground', 'white')    # Hover text color
+        self.root.option_add('*TMenubutton*Menu*selectColor', '#2b2b2b')       # Selected item color
+
+        # Get the menu widget and configure it directly for additional styling
+        menu = night_menu['menu']
+        menu.config(
+            bg='#2b2b2b',
+            fg='white',
+            activebackground='#3b3b3b',
+            activeforeground='white',
+            relief='flat',
+            bd=0,
+            activeborderwidth=0
+        )
+
+        # Configure width and pack
+        night_menu.config(width=8)
         night_menu.pack(pady=10)
 
         button_frame = tk.Frame(self.main_frame, bg='black')
@@ -284,12 +341,12 @@ class FNAFMenu:
             if self.credit_panel.winfo_ismapped():
                 self.credit_panel.place_forget()  # Hide the panel
             else:
-                self.credit_panel.place(relx=0.5, rely=0.5, anchor='center', width=700, height=550)  # Show the panel
+                self.credit_panel.place(relx=0.5, rely=0.5, anchor='center', width=500, height=400)  # Show the panel
             return
 
         # Create a credits panel
-        self.credit_panel = tk.Frame(self.root, bg='dark grey', bd=2, relief='ridge')
-        self.credit_panel.place(relx=0.5, rely=0.5, anchor='center', width=700, height=550)  # Center the panel with fixed size
+        self.credit_panel = tk.Frame(self.root, bg='black', bd=2, relief='ridge')
+        self.credit_panel.place(relx=0.5, rely=0.5, anchor='center', width=550, height=400)  # Center the panel with fixed size
 
         # Add a label for the credits text
         credit_text = (
@@ -297,13 +354,22 @@ class FNAFMenu:
             'Coders: Kyle Pat & Johnny Ren\n'
             'VFX & Inspiration: FNAF by Scott Cawthon'
         )
+
+        credit_labels = tk.Label(self.credit_panel,
+                                text= "CREDITS",
+                                font=('Arial', 15, 'bold'),
+                                fg='red',
+                                bg='black',
+                                justify='left')
+        credit_labels.pack(pady=15, padx=10)
+
         credit_labels = tk.Label(self.credit_panel,
                                 text=credit_text,
                                 font=('Arial', 15, 'bold'),
-                                fg='black',
-                                bg='dark grey',
+                                fg='white',
+                                bg='black',
                                 justify='left')
-        credit_labels.pack(pady=20, padx=20)
+        credit_labels.pack(pady=10, padx=10)
 
         # Add a Close button
         close_button = tk.Button(self.credit_panel,
@@ -396,7 +462,17 @@ class FNAFMenu:
     def get_page_content(self, page_number):
         """Return content for the specified page number."""
         content = {
-            0: ('Game Controls\n\n'
+
+            0: ('Objective\n\n'
+                'Your objective as the night guard of\n'
+                'Bucks restaurant chain is to monitor the animatronics\n'
+                'to make sure they stay in their designated areas.\n'
+                'However it is a rather difficult challenge as you will\n'
+                'also have to fend yourself from the animatronics who are\n'
+                'sentient and will try to kill you if you dont succeed.\n'
+                'Use by any means necessary to survive and complete your objective.'),
+
+            1: ('Game Controls\n\n'
                 '[A] - Close/Open Left Door\n'
                 '[D] - Close/Open Right Door \n'
                 '[S] - Check Vent\n'
@@ -406,23 +482,24 @@ class FNAFMenu:
                 '[Esc] - Close Game\n'
                 '[M] - Mute Phone Guy'),
             
-            1: ('About The Animatronics\n\n'
-                'Penny - [ANIMATRONIC 1] - Moves in probability intervals,\n'
-                'when they reach CAM 2, you must shut the door before\n'
-                '5 seconds of them reaching it, or you will die.\n'
-                'Resets after 8 seconds of door closed.'),
+            2: ('About The Animatronics\n\n'
+                'Penny - [ANIMATRONIC 1]\n\n'
+                'Moves in probability intervals, when they reach CAM 2,\n'
+                'you must shut the door before 5 seconds of them reaching it,\n'
+                'or you will die. Resets after 8 seconds of door closed.'),
             
-            2: ('Egg - [ANIMATRONIC 2] - Starts in CAM 7 and moves to' 
-                'CAM 4 after being reset. You must stay on their camera\n'
-                'for 5 seconds to reset, if not reset, after certain time,\n'
-                'they will attack on CAM 1 where user must close door,\n'
-                'or you will die. Resets at door after 8 seconds.'),
+            3: ('Egg - [ANIMATRONIC 2]\n\n' 
+                'Starts in CAM 7 and moves to CAM 4 after being reset.\n'
+                'You must stay on their camera for 5 seconds to reset,\n'
+                'if not reset, after certain time,they will attack on\n'
+                'CAM 1 where user must close door, or you will die.\n'
+                'Resets at door after 8 seconds.'),
 
-            3: ('Wolfington - [ANIMATRONIC 3] - Stays in CAM 3 and'
-                ' will move to vent after camera was flipped enough times.\n'
+            4: ('Wolfington - [ANIMATRONIC 3]\n\n'
+                'Stays in CAM 3 and will move to vent after camera was flipped enough times.\n'
                 'When in vents, flash them for 5 seconds to reset.'),
 
-            4: ('Others\n\n'
+            5: ('Others\n\n'
                 'If you see the light bulb blink, that means that an animatronic\n'
                 'has moved position.\n\n'
                 'If you hear running sounds, that means that\n'
@@ -549,6 +626,8 @@ class FNAFMenu:
             messagebox.showerror("Invalid Input", str(e))
             return
 
+        pygame.mixer.music.stop()  # Stop menu music
+
         # Scale the difficulties
         global_power_settings = {
             key: scale_value(self.global_power_easy[key], self.global_power_max[key], difficulties['global'])
@@ -582,7 +661,9 @@ class FNAFMenu:
     def start_game(self):
         selected_night = self.selected_night.get()
         night_number = int(selected_night.split()[1])
-        
+
+        pygame.mixer.music.stop()  # Stop menu music
+
         self.root.destroy()
         
         pygame.init()
