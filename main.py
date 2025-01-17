@@ -4,7 +4,7 @@ import random
 from threading import Timer
 import sys
 
-def jumpscare(screen, jumpscare_image, jumpscare_sound, duration=3000, rotation_speed=5, rotation_loops=3):
+def jumpscare(screen, jumpscare_image, jumpscare_sound, duration=5000, rotation_speed=20, rotation_loops=6):
     """
     Display a jumpscare with a left-right rotating animation.
     The animation will rotate back and forth `rotation_loops` times.
@@ -22,7 +22,7 @@ def jumpscare(screen, jumpscare_image, jumpscare_sound, duration=3000, rotation_
         angle += rotation_speed * direction
 
         # Reverse direction when reaching the maximum rotation angle (10 degrees)
-        if angle >= 1 or angle <= -1:
+        if angle >= 5 or angle <= -5:
             direction *= -1  # Reverse rotation direction
             loop_count += 1  # Increment the loop counter
 
@@ -61,8 +61,6 @@ def night_one():
     phone_mp3 = "FNAF GAME/phone night one.mp3"
     # Load and play the MP3 file
 
-    running = True
-    
     # Play ambience sound on a loop
     ambience_channel = pygame.mixer.Channel(1)
     ambience_sound = pygame.mixer.Sound(ambience_mp3)
@@ -472,20 +470,10 @@ def night_one():
                         phone_channel.set_volume(1)     # Unmute the sound
                 # Handle escape key
                 elif event.key == pygame.K_ESCAPE:
-                    pause_game()
-                def pause_game():
-                    is_paused = True
-                    while is_paused:
-                        for event in pygame.event.get():
-                            if event.type == pygame.KEYDOWN:
-                                if event.key == pygame.K_ESCAPE:
-                                    is_paused = False
-                            if event.type == pygame.QUIT:
-                                is_paused = False
-                                running = False
-                 
+                    pygame.quit()
+                    sys.exit()
                 # Handle camera switching
-            elif event.key in camera_positions and camera_open:
+                elif event.key in camera_positions and camera_open:
                     current_time = pygame.time.get_ticks()
                     if current_time - last_camera_switch >= camera_switch_delay:
                         # Switch camera
@@ -592,7 +580,11 @@ def night_one():
                     if animatronic1_at_door_time == 0:  # Start the timer if animatronic reaches the door
                         animatronic1_at_door_time = pygame.time.get_ticks()
                     elif pygame.time.get_ticks() - animatronic1_at_door_time >= 5000:  # If the door is open for 5 seconds
-                        jumpscare(screen, jumpscare_image1, jumpscare_sound, duration=3000, rotation_speed=10, rotation_loops=3)
+                        screen.fill((0, 0, 0))
+                        screen.blit(jumpscare_image1, (0, 0))  # Show the jumpscare image
+                        jumpscare_sound.play()  # Play jumpscare sound
+                        pygame.display.flip()
+                        pygame.time.wait(3000)
                         running = False  # End the game
                 else:
                     if animatronic1_at_door_time == 0:  # Start the timer if animatronic reaches the door
@@ -1238,8 +1230,13 @@ def night_two():
                     playing_power_out_music = True
 
             if power_out_start_time and pygame.time.get_ticks() - power_out_start_time >= 23000:
-                jumpscare(screen, jumpscare_image1, jumpscare_sound, duration=3000, rotation_speed=10, rotation_loops=3)
+                screen.fill((0, 0, 0))
+                screen.blit(jumpscare_image1, (0, 0))
+                jumpscare_sound.play()
+                pygame.display.flip()
+                pygame.time.wait(3000)
                 running = False
+                print("died by one")
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1354,7 +1351,11 @@ def night_two():
                 if animatronic1_at_door_time == 0:  # Start the timer if animatronic reaches the door
                     animatronic1_at_door_time = pygame.time.get_ticks()
                 elif pygame.time.get_ticks() - animatronic1_at_door_time >= 5000:  # If the door is open for 5 seconds
-                    jumpscare(screen, jumpscare_image1, jumpscare_sound, duration=3000, rotation_speed=10, rotation_loops=3)
+                    screen.fill((0, 0, 0))
+                    screen.blit(jumpscare_image1, (0, 0))  # Show the jumpscare image
+                    jumpscare_sound.play()  # Play jumpscare sound
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
                     running = False  # End the game
             else:
                 if animatronic1_at_door_time == 0:  # Start the timer if animatronic reaches the door
@@ -1409,7 +1410,11 @@ def night_two():
                 if animatronic2_at_door_time == 0:  
                     animatronic2_at_door_time = pygame.time.get_ticks()
                 elif pygame.time.get_ticks() - animatronic2_at_door_time >= 5000:  
-                    jumpscare(screen, jumpscare_image2, jumpscare_sound, duration=3000, rotation_speed=0, rotation_loops=0)
+                    screen.fill((0, 0, 0))
+                    screen.blit(jumpscare_image2, (0, 0))  
+                    jumpscare_sound.play()  
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
                     running = False  
             else:
                 if animatronic2_at_door_time == 0:  
@@ -1456,9 +1461,14 @@ def night_two():
         else:
             ani3_last_move_time = pygame.time.get_ticks()
 
-            if animatronic3_current_camera > 3:  #Jumpscare if animatronic3_current_camera is greater than index 3
-                jumpscare(screen, jumpscare_image3, jumpscare_sound, duration=3000, rotation_speed=0, rotation_loops=0)
-                running = False
+        if animatronic3_current_camera > 3:  #Jumpscare if animatronic3_current_camera is greater than index 3
+            screen.fill((0, 0, 0))
+            screen.blit(jumpscare_image3, (0, 0))
+            jumpscare_sound.play()
+            pygame.display.flip()
+            pygame.time.wait(3000)
+            running = False
+            print("died by animatronic 3")
 
         # Flashing logic for Animatronic 3
         if vent_flashing:
@@ -2172,8 +2182,12 @@ def night_three():
                 if animatronic2_at_door_time == 0:  
                     animatronic2_at_door_time = pygame.time.get_ticks()
                 elif pygame.time.get_ticks() - animatronic2_at_door_time >= 5000:  
-                    jumpscare(screen, jumpscare_image2, jumpscare_sound, duration=3000, rotation_speed=0, rotation_loops=0)
-                    running = False
+                    screen.fill((0, 0, 0))
+                    screen.blit(jumpscare_image2, (0, 0))  
+                    jumpscare_sound.play()  
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
+                    running = False  
             else:
                 if animatronic2_at_door_time == 0:  
                     animatronic2_at_door_time = pygame.time.get_ticks()
@@ -2220,8 +2234,13 @@ def night_three():
             ani3_last_move_time = pygame.time.get_ticks()
 
         if animatronic3_current_camera > 3:  #Jumpscare if animatronic3_current_camera is greater than index 3
-            jumpscare(screen, jumpscare_image3, jumpscare_sound, duration=3000)
+            screen.fill((0, 0, 0))
+            screen.blit(jumpscare_image3, (0, 0))
+            jumpscare_sound.play()
+            pygame.display.flip()
+            pygame.time.wait(3000)
             running = False
+            print("died by animatronic 3")
 
         # Flashing logic for Animatronic 3
         if vent_flashing:
@@ -2942,8 +2961,12 @@ def night_four():
                 if animatronic2_at_door_time == 0:  
                     animatronic2_at_door_time = pygame.time.get_ticks()
                 elif pygame.time.get_ticks() - animatronic2_at_door_time >= 5000:  
-                    jumpscare(screen, jumpscare_image2, jumpscare_sound, duration=3000, rotation_speed=0, rotation_loops=0)
-                    running = False
+                    screen.fill((0, 0, 0))
+                    screen.blit(jumpscare_image2, (0, 0))  
+                    jumpscare_sound.play()  
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
+                    running = False  
             else:
                 if animatronic2_at_door_time == 0:  
                     animatronic2_at_door_time = pygame.time.get_ticks()
@@ -2989,8 +3012,13 @@ def night_four():
             ani3_last_move_time = pygame.time.get_ticks()
 
         if animatronic3_current_camera > 3:  #Jumpscare if animatronic3_current_camera is greater than index 3
-            jumpscare(screen, jumpscare_image3, jumpscare_sound, duration=3000, rotation_speed=0, rotation_loops=0)
+            screen.fill((0, 0, 0))
+            screen.blit(jumpscare_image3, (0, 0))
+            jumpscare_sound.play()
+            pygame.display.flip()
+            pygame.time.wait(3000)
             running = False
+            print("died by animatronic 3")
 
         # Flashing logic for Animatronic 3
         if vent_flashing:
@@ -3789,7 +3817,11 @@ def custom_night(global_power_settings, penny_settings, egg_settings, wolfington
             ani3_last_move_time = pygame.time.get_ticks()
 
         if animatronic3_current_camera > 3:  #Jumpscare if animatronic3_current_camera is greater than index 3
-            jumpscare(screen, jumpscare_image3, jumpscare_sound, duration=3000, rotation_speed=0, rotation_loops=0)
+            screen.fill((0, 0, 0))
+            screen.blit(jumpscare_image3, (0, 0))
+            jumpscare_sound.play()
+            pygame.display.flip()
+            pygame.time.wait(3000)
             running = False
 
         # Flashing logic for Animatronic 3
